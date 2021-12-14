@@ -25,7 +25,7 @@ exports.listUsers = async (req, res) => {
 exports.logIn = async (req, res) => {
     try {
         const currentUser = await User.findOne({username: req.body.username});
-        if(currentUser != null)
+        if(currentUser)
             await comparePasswords({plainText: req.body.password, user: currentUser}, res);
         else
             res.status(500).send({message: `User ${req.body.username} not found, please try again`});
