@@ -9,11 +9,11 @@ var corsOptions = {
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   }
 
-userRouter.post("/user", cors(), hashPassword, addUser);
-userRouter.get("/user", cors(), listUsers);
-userRouter.post("/login", cors(), findUser, comparePasswords);
-userRouter.put("/updatePassword", cors(), findUser, comparePasswords, hashPassword, updatePassword);
-userRouter.put("/user", cors(), updateUser)
-userRouter.delete("/user", cors(), deleteUser);
+userRouter.post("/user", cors(corsOptions), hashPassword, addUser);
+userRouter.get("/user", cors(corsOptions), listUsers);
+userRouter.post("/login", cors(corsOptions), findUser, comparePasswords);
+userRouter.put("/updatePassword", cors(corsOptions), findUser, comparePasswords, hashPassword, updatePassword);
+userRouter.put("/user", cors(corsOptions), updateUser)
+userRouter.delete("/user", cors(corsOptions), deleteUser);
 
 module.exports = userRouter;
