@@ -1,9 +1,13 @@
 const bcrypt = require("bcrypt");
-const User = require("../user/userModel.js");
 
 exports.hashPassword = async (req, res, next) => {
     try {
-        req.body.password = await bcrypt.hash(req.body.password, 16);
+        if(req.body.newPassword) {
+            req.body.password = await bcrypt.hash(req.body.newPassword, 8);
+            console.log(typeof(req.body.password));
+        } else {
+            req.body.password = await bcrypt.hash(req.body.password, 8);
+        }
         next();
     } catch (error) {
         console.log(error);
@@ -11,17 +15,20 @@ exports.hashPassword = async (req, res, next) => {
     }
 };
 
-exports.comparePasswords = async (req, res) => {
+exports.comparePasswords = async (req, res, next) => {
     try {
-        await bcrypt.compare(req.plainText, req.user.password, function(err, result) {
+        await bcrypt.compare(req.body.password, req.currentUser.password, function(err, result) {
             if(err)
                 res.status(500).send({message: 'Something went wrong!'});
 
-            console.log(result);
-            if(result)
-                res.status(200).send({message: `Successfully logged in as ${req.user.username}`});
-            else
-                return false;
+            if(result) {
+                if(req.body.newPassword) {
+                    next();
+                } else {
+                    res.status(200).send({message: `Credentials for ${req.currentUser.username} are correct`, state: true});
+                }
+            } else
+                res.status(200).send({message: `Incorrect credentials provided, please try again`, state: false});
         });
 
     } catch (error) {

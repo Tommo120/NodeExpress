@@ -1,5 +1,4 @@
 const User = require("./userModel");
-const { comparePasswords } = require("../middleware/index.js");
 
 exports.addUser = async (req, res) => {
     try {
@@ -22,12 +21,13 @@ exports.listUsers = async (req, res) => {
     }
 };
 
-exports.logIn = async (req, res) => {
+exports.findUser = async (req, res, next) => {
     try {
         const currentUser = await User.findOne({username: req.body.username});
-        if(currentUser)
-            await comparePasswords({plainText: req.body.password, user: currentUser}, res);
-        else
+        if(currentUser) {
+            req.currentUser = currentUser;
+            next();
+        } else
             res.status(500).send({message: `User ${req.body.username} not found, please try again`});
     } catch (error) {
         console.log(error);
@@ -44,6 +44,16 @@ exports.updateUser = async (req, res) => {
         res.status(500).send({message: `Unsuccessful, please try again`});
     }
 };
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const result = await User.findOneAndUpdate({username: [req.currentUser.username]}, {password: req.body.password})
+        res.status(200).send({message: `Updated password for ${req.body.username}`, state: true});
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({message: `Unsuccessful, please try again`, state: false});
+    }
+}
 
 exports.deleteUser = async (req, res) => {
     try {
